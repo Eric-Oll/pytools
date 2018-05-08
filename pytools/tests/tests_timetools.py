@@ -3,9 +3,17 @@
 import unittest
 import datetime as dt
 
+from pytools.timetools import str_to_date
 from pytools.timetools import diff_times
 
+
 class TestTimetools(unittest.TestCase):
+    def test_str_to_date(self):
+        self.assertEqual(str_to_date('01/08/1972'), dt.date(1972,8,1))
+        self.assertEqual(str_to_date('08/01/1972', format='MDY'), dt.date(1972,8,1))
+        self.assertEqual(str_to_date('1972-01-08', sep='-', format='YDM'), dt.date(1972,8,1))
+        
+    
     def tests_prerequisite_diff_times(self):
         date1 = dt.time(1)
         date2 = 12

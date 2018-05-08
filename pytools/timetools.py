@@ -3,6 +3,7 @@
 """
 This module provides a list of tool functions about date/time.
 - diff_time
+- str_to_date
 
 Author : Eric OLLIVIER
 """
@@ -10,6 +11,30 @@ Author : Eric OLLIVIER
 import time
 import datetime as dt
 
+# =============================================================================
+# str_to_date
+# =============================================================================
+def str_to_date(s_date, sep='/', format='DMY'):
+    """
+    Convert a date with 'str' type to date object (from datetime module).
+    - s_date: string contains the date
+    - sep : the separator between the date items. By default the value is '/'
+    - format : define the order of the item
+        'Y' for year, 'M' for month, 'D' for day.
+        example : the format 'DMY' defines a date like '01/08/1972'
+    """
+    try:
+        idx_format = list(format.upper())
+        idx_date = s_date.split(sep)
+        return dt.date(int(idx_date[idx_format.index('Y')]),
+                       int(idx_date[idx_format.index('M')]),
+                       int(idx_date[idx_format.index('D')]))
+    except:
+        return None
+    
+# =============================================================================
+# diff_times
+# =============================================================================
 def diff_times(date1, date2, unit='second'):
     """
     This function return the differential time between two dates or times.
