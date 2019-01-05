@@ -4,11 +4,11 @@ Created on Mon Dec 31 12:08:14 2018
 
 @author: Eric OLLIVIER
 """
-__version__ = 0.2
+__version__ = 0.3
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Wedge, Polygon, FancyArrowPatch
+from matplotlib.patches import Circle, Wedge, Polygon
 from matplotlib.collections import PatchCollection
 
 import logging as log
@@ -39,7 +39,19 @@ class MathGraph:
             if taille is not None:
                 self._fig.set_size_inches(taille)
 
-    def cadre(self, actif=False, taille=None):
+    def get_axes(self):
+        """
+        Return l'objet Axes associé à l'objet MathGraph
+        """
+        return self._ax
+
+    def get_figure(self):
+        """
+        Return l'objet Figure associé à l'objet MathGraph
+        """
+        return self._fig
+
+    def cadre(self, actif=False):
         """
         Définit les propriétés du cadre de l'objet Axes
         """
@@ -56,12 +68,12 @@ class MathGraph:
 
     def texte(self, position, texte,
               align_vertical=ALIGNEMENT.CENTRE,
-              align_horizontal=ALIGNEMENT.CENTRE):
+              align_horizontal=ALIGNEMENT.CENTRE, **kwargs):
         """
         Ajoute du texte au graphique
         """
         self._ax.annotate(texte, xy=position,
-                          va=align_vertical, ha=align_horizontal)
+                          va=align_vertical, ha=align_horizontal, **kwargs)
         return self
 
     def repere(self, origine=(0,0),
@@ -131,36 +143,38 @@ class MathGraph:
 
         return self
 
-    def disque(self, centre=(0,0), rayon=1, couleur='black'):
+    def segment(self, point1, point2, couleur='black', **kwargs):
+        """
+        Dessine le segment ['point1', 'point2'}
+        """
+        self._ax.add_patch(Polygon(xy=[point1, point2], closed=False, color=couleur, **kwargs))
+
+    def disque(self, centre=(0,0), rayon=1, couleur='black', **kwargs):
         """
         Dessine un cercle de centre 'centre' et de rayon 'rayon'
         """
-        ax = self._ax
         if self._ax is None:
             log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
-        ax.add_collection(PatchCollection(
-                [Circle(centre, rayon, color=couleur, fill=True)],
-                match_original=True))
+        self._ax.add_patch(
+                Circle(centre, rayon, color=couleur, fill=True, **kwargs))
         return self
 
-    def cercle(self, centre=(0,0), rayon=1, epaisseur=0.02, couleur='black'):
+    def cercle(self, centre=(0,0), rayon=1, epaisseur=0.02, couleur='black', **kwargs):
         """
         Dessine un cercle de centre 'centre' et de rayon 'rayon'
         """
-        ax = self._ax
         if self._ax is None:
             log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
-        ax.add_collection(PatchCollection(
-                [Circle(centre, rayon, color=couleur, fill=False)],
-                match_original=True))
+        self._ax.add_patch(
+                Circle(centre, rayon, color=couleur, fill=False, **kwargs))
         return self
 
     def arc(self, centre=(0,0), rayon=1, angle_debut=0, angle_fin=90 ,
-            epaisseur=0.02, couleur='black'):
+            epaisseur=0.02, couleur='black', **kwargs):
         """
         Dessine un cercle de centre 'centre' et de rayon 'rayon'
         """
@@ -169,32 +183,32 @@ class MathGraph:
             log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
-        p = PatchCollection(
-                [Wedge(centre, rayon, angle_debut, angle_fin, fill=False, color=couleur)],
-                match_original=True)
-        #p.set_array(np.array([color]))
-        ax.add_collection(p)
+        ax.add_patch(Wedge(centre, rayon, angle_debut, angle_fin, fill=False,
+                           color=couleur, **kwargs))
         return self
 
     def polygone(self, liste_points=[(0,0), (1,0), (1,1), (0,1)],
-                       couleur='black', style='-'):
+                       couleur='black', style='-', **kwargs):
         """
         Dessine un polygone à partir d'une liste de points
         """
-        ax = self._ax
         if self._ax is None:
             log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
-        ax.add_collection(PatchCollection(
-                [Polygon(liste_points, color=couleur, linestyle=style, fill=False)],
-                match_original=True))
+        self._ax.add_patch(
+                Polygon(liste_points, color=couleur, linestyle=style, fill=False, **kwargs))
+
+
+#        ax.add_collection(PatchCollection(
+#                [Polygon(liste_points, color=couleur, linestyle=style, fill=False)],
+#                match_original=True, **kwargs))
 
         return self
 
     def vecteur(self, origine=(0,0),
                 vecteur=None, destination=None,
-                couleur='black'):
+                couleur='black', **kwargs):
         """
         Dessine un vecteur
         """
@@ -206,11 +220,11 @@ class MathGraph:
         arrow_size = 0.02*np.linalg.norm(self._ax.get_xlim())
         self._ax.arrow(*origine, *vecteur,
                        head_width=arrow_size, head_length=arrow_size,
-                       color=couleur, length_includes_head=True)
+                       color=couleur, length_includes_head=True, **kwargs)
         return self
 
 
-    def fonction(self, f, xmin=None, xmax=None, nb_points=50, couleur='black'):
+    def fonction(self, f, xmin=None, xmax=None, nb_points=50, couleur='black', **kwargs):
         """
         Dessine la fonction f entre les bornes [xmin, xmax]
         avec un échantillon de 'nb_points' sur l'intervalle.
@@ -229,15 +243,14 @@ class MathGraph:
         _err = []
         for i, x in enumerate(X):
             try:
-                _y = f(x)
-                Y.append(_y)
+                Y.append(f(x))
             except Exception as err:
                 _err.append(x)
         for x in _err:
             X.remove(x)
 
         # Affichage de la fonction
-        self._ax.plot(X,Y, color=couleur)
+        self._ax.plot(X,Y, color=couleur, **kwargs)
 
         return self
 
