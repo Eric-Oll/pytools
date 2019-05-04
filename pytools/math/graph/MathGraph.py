@@ -3,8 +3,19 @@
 Created on Mon Dec 31 12:08:14 2018
 
 @author: Eric OLLIVIER
+________________________
+0.1 : Version initial
+0.2 :*
+0.3 :*
+0.4 :
+    - TODO Ajout de la fonction point pour affiche un point ou une liste de points (scatter)
+    - Amélioration de l'affichage des labels sur les axes
+        (avec ajout des nouveaux paramètres voffset et hoffset)
+    - Ajout du paramètre titre dans la création du graphique (via __init__)
+    - Ajout de la représentation de l'objet (surdéfnition de __repr__)
+        (affiche le titre si défini + affiche le graphique)
 """
-__version__ = 0.3
+__version__ = 0.4
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,7 +33,7 @@ class MathGraph:
         DROITE = 'right'
         GAUCHE = 'left'
 
-    def __init__(self, ax=None, taille=None):
+    def __init__(self, ax=None, taille=None, titre=""):
         """
         Initialise le graphique.
         - Si ax n'est pas définit, MathGraph crée automatiquement un nouvel Axes
@@ -38,6 +49,16 @@ class MathGraph:
             self._fig = ax.get_figure()
             if taille is not None:
                 self._fig.set_size_inches(taille)
+        self.titre(titre)
+
+    def __repr__(self):
+        if self._ax is not None:
+            self.get_figure().show()
+
+        if self._titre == "":
+            return f"{self.__class__.__name__}"
+        else:
+            return f"{self.__class__.__name__} : {self._titre}"
 
     def get_axes(self):
         """
@@ -59,11 +80,12 @@ class MathGraph:
             self._ax.set_axis_off()
         return self
 
-    def titre(self,texte=""):
+    def titre(self, texte=""):
         """
         Ajoute un titre au graphique
         """
-        self._ax.set_title(texte)
+        self._titre = texte
+        self._ax.set_title(self._titre)
         return self
 
     def texte(self, position, texte,
@@ -82,7 +104,8 @@ class MathGraph:
                      xunit=1, yunit=1,
                      couleur='black',
                      libelle_origine=None,
-                     echelle_auto=False):
+                     echelle_auto=False,
+                     **kwargs):
         """
         Création d'un repère graphique dans un objet de type Axes.
         Paramètre :
@@ -92,9 +115,27 @@ class MathGraph:
             y_limit : tuple (borne_inf, borne_sup) définissant les limites inférieur et supérieur de l'axe des ordonnées'
             x_unit : distance entre les marques sur l'axe des abscisses
             y_unit : distance entre les marques sur l'axe des ordonnées
+            couleur : définit la couleur des axes et des libellés
+            libelle_origine : Définit le libelle pour le point d'origine
+            echelle_auto : indicateur de mise à l'échelle automatique
             return : Retourne l'objet MathGraph (Retourne None si erreur)
+
+            Autres paramètres :
+                voffset : distance de l'étuquette à  l'axe des abscisses
+                hoffset : distance de l'étiquettes à l'axe des ordonnées
         """
         ax = self._ax
+
+        if 'voffset' in kwargs.keys():
+            voffset = kwargs['voffset']
+        else: # Valeur par défaut
+            voffset = (ymax-ymin)/200
+
+        if 'hoffset' in kwargs.keys():
+            hoffset = kwargs['hoffset']
+        else: # Valeur par défaut
+            hoffset = (xmax-xmin)/200
+
 
         if self._ax is None:
             log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
@@ -107,14 +148,14 @@ class MathGraph:
                       ymin=origine[1]-(ymax-ymin)/200,
                       ymax=origine[1]+(ymax-ymin)/200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(i, origine[1]), va='top', ha='center')
+            ax.annotate(str(i), xy=(i, origine[1]-voffset), va='top', ha='center')
 
         for i in range(int(origine[0])+1, int(xmax+1), xunit):
             ax.vlines(x=i,
                       ymin=origine[1]-(ymax-ymin)/200,
                       ymax=origine[1]+(ymax-ymin)/200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(i, origine[1]), va='top', ha='center')
+            ax.annotate(str(i), xy=(i, origine[1]-voffset), va='top', ha='center')
 
         # Axe des ordonnées
         ax.vlines(x=origine[0], ymin=ymin, ymax=ymax, colors=couleur)
@@ -123,14 +164,14 @@ class MathGraph:
                       xmin=origine[0]-(xmax-xmin)/200,
                       xmax=origine[0]+(xmax-xmin)/200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(origine[1], i), va='center', ha='right')
+            ax.annotate(str(i), xy=(origine[1]-hoffset, i), va='center', ha='right')
 
         for i in range(int(origine[1])+1, int(ymax+1), yunit):
             ax.hlines(y=i,
                       xmin=origine[0]-(xmax-xmin)/200,
                       xmax=origine[0]+(xmax-xmin)/200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(origine[1], i), va='center', ha='right')
+            ax.annotate(str(i), xy=(origine[1]-hoffset, i), va='center', ha='right')
 
         if libelle_origine is None:
             libelle_origine="({},{})".format(*origine)
@@ -145,9 +186,25 @@ class MathGraph:
 
     def segment(self, point1, point2, couleur='black', **kwargs):
         """
-        Dessine le segment ['point1', 'point2'}
+        Dessine le segment ['point1', 'point2']
         """
         self._ax.add_patch(Polygon(xy=[point1, point2], closed=False, color=couleur, **kwargs))
+
+        return self
+
+    def point(self, points, couleur='black', **kwargs):
+        """
+        Dessine un point ou une liste de points
+        points : itérable (list ou array) de dimension n x 2
+        """
+        X = []
+        Y = []
+        for p in points:
+            X.append(p[0])
+            Y.append(p[1])
+        self._ax.scatter(X,Y, c=couleur, **kwargs)
+
+        return self
 
     def disque(self, centre=(0,0), rayon=1, couleur='black', **kwargs):
         """
