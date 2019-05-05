@@ -175,7 +175,8 @@ class MathGraph:
 
         if libelle_origine is None:
             libelle_origine="({},{})".format(*origine)
-        ax.annotate(libelle_origine, xy=origine, va='top', ha='right')
+        ax.annotate(libelle_origine, xy=(origine[1]-hoffset, origine[1]-voffset),
+                    va='top', ha='right')
 
         # Traitement de l'échelle
         if not echelle_auto:
