@@ -15,7 +15,7 @@ class Level:
         self.level=level
     
     def __repr__(self):
-        return self.level
+        return f"Level {str(self)}"
     
     def __int__(self):
         return self.level
@@ -60,13 +60,26 @@ class Duck():
         - format : format Duck si`format_duck` est actif. Sinon c'est le format logging.
         - les autres param�tres sont pass�es`logging.basicconfig(**kwargs)`
         '''
+        self.logger = log.getLogger()
+        
+        # Format
         self.format_duck = kwargs.pop('format_duck',True)
         if self.format_duck:
             self.format = kwargs.pop('format', Duck.DEFAUL_DUCK_FORMAT)
             kwargs['format']=Duck.FORMAT
-        self.logger = log.getLogger()
+        
+        # Level
+        _level = kwargs.pop("level", self.logger.getEffectiveLevel())
+        if isinstance(_level, Level):
+            kwargs['level'] = int(_level)
+        else:
+            kwargs['level'] = _level
+        
         log.basicConfig(**kwargs)
         
+    def get_level(self):
+        return Level(self.logger.getEffectiveLevel())    
+    
     def set_level(self, level):
         if isinstance(level, Level):
             self.logger.setLevel(int(level))
@@ -106,7 +119,7 @@ class Duck():
         self.logger.fatal(msg, **kwargs)
 
     def format_header(self, level):
-        if isinstance(level, level):
+        if isinstance(level, Level):
             str_level = str(level)
         elif isinstance(level, int):
             str_level = str(Level(level))
@@ -115,11 +128,18 @@ class Duck():
             
         header = self.format.upper().replace("%LEVEL%", str_level)
         header = header.replace("%DATE%", datetime.today().strftime(self.DATE_FORMAT))
+        
+        if not isinstance(header, str):
+            log.error(f"{self.__class__}.format_header : Le type retourné est {type(header)}. Attendu 'str'")
+            return "DEFAULT_HEADER:{}:%MESSAGE%".format(datetime.today())
         return header
 
-    def format_message(self, level, list_message):
-        if len(list_message) == 1:
-            msg = list_message.pop()
+    def format_message(self, level, list_messages):
+        if len(list_messages) == 1:
+            msg = str(list_messages.pop())
+        elif len(list_messages) == 0:
+            msg = "<No message>"
         else:
-            msg =  "\n\t- " + "\n\t- ".join(list_message)
+            msg =  "\n\t- " + "\n\t- ".join([str(item) for item in list_messages])
+            
         return self.format_header(level).replace("%MESSAGE%",msg)
