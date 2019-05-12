@@ -9,7 +9,9 @@ from threading import Thread
 
 import logging as log
 
+
 class ThreadFlash(Thread):
+
     def __init__(self, func=None, func_argv=None, func_kwarg=None):
         Thread.__init__(self)
 
@@ -28,8 +30,8 @@ class ThreadFlash(Thread):
         else:
             log.debug(f"End of function '{self.func}'.")
 
-
     # TODO : Faire une fonction de stop
+
 
 def threading_function(func=None, argv=None, kwarg=None):
     th = ThreadFlash(func=func,

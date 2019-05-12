@@ -6,6 +6,7 @@ Created on Sun May 20 15:53:55 2018
 """
 import pandas as pd
 
+
 def read_dict(list_of_dict):
     """
     Create a DataFrame from a dict or a list of dict.
@@ -15,7 +16,7 @@ def read_dict(list_of_dict):
     """
     
     # Transform the dict in dict's list
-    if isinstance(list_of_dict,dict):
+    if isinstance(list_of_dict, dict):
         _list_dict = []
         _list_dict.append(list_of_dict)
     elif isinstance(list_of_dict, list):

@@ -8,8 +8,10 @@ Created on Sat Aug 11 14:35:54 2018
 import pickle
 import logging as log
 
+
 class Writable:
     LIST_ATTR = []
+
     def __init__(self):
         pass
 
@@ -25,4 +27,4 @@ class Writable:
             with open(filename, 'wb') as file:
                 pickle.dump(obj_dict, file)
         except Exception as err:
-            log.error('<{}.save> : {}'.format(self.__class__,err))
+            log.error('<{}.save> : {}'.format(self.__class__, err))

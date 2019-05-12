@@ -10,6 +10,7 @@ import pickle
 
 import logging as log
 
+
 class Readable:
     LIST_ATTR = []
 
@@ -25,11 +26,11 @@ class Readable:
                 with open(filename, 'rb') as file:
                     obj_dict = pickle.load(file)
             except Exception as err:
-                log.error("<{}.load>: {}".format(self.__class__,err))
+                log.error("<{}.load>: {}".format(self.__class__, err))
 
             for attr in obj_dict:
                 if hasattr(self, attr):
                     setattr(self, attr, obj_dict[attr])
         else:
             log.error('<{}.load> : File no found ''{}'''
-                      .format(self.__class__,filename))
+                      .format(self.__class__, filename))

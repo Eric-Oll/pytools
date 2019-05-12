@@ -8,12 +8,14 @@ Created on Sat Sep 29 16:31:51 2018
 import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import to_hex
-from ..info.conditions import between
+from prog.conditions.conditions import between
 
 import logging as log
 log.basicConfig(level=log.INFO)
 
+
 class ColorMap:
+
     def __init__(self, cmap='Greys', vmin=0, vmax=100):
         self.cmap = plt.get_cmap(cmap)
         self.vmin = vmin
@@ -29,11 +31,11 @@ class ColorMap:
 
         if between(value, vmin, vmax):
             r, g, b, a = self.scalar_color.to_rgba(value)
-        elif value<vmin:
+        elif value < vmin:
             r, g, b, a = self.cmap(0)
         else:
             r, g, b, a = self.cmap(self.vmax)
 
-        rgb = to_hex((r,g,b,a))
+        rgb = to_hex((r, g, b, a))
 #        log.debug(f"{self.__class__}.get_color_rgb : value={value} ; rgb={rgb} ; red={r:.3f}, green={g:.3f}, blue={b:.3f}" )
         return rgb
