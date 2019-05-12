@@ -14,18 +14,22 @@ ________________________
     - Ajout du paramètre titre dans la création du graphique (via __init__)
     - Ajout de la représentation de l'objet (surdéfnition de __repr__)
         (affiche le titre si défini + affiche le graphique)
+0.5 : Changement de système de journalisation des messages. Utilisation des objets Duck.
 """
-__version__ = 0.4
+__version__ = 0.5
 
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.patches import Circle, Wedge, Polygon
-from matplotlib.collections import PatchCollection
+#from matplotlib.collections import PatchCollection
 
-import logging as log
-log.basicConfig(level=log.DEBUG)
+#import logging as logger
+#logger.basicConfig(level=logger.DEBUG)
+from pytools.info.logger.duck import Duck
+logger = Duck(level = Duck.INFO)
 
 class MathGraph:
+
     class ALIGNEMENT:
         CENTRE = 'center'
         HAUT = 'top'
@@ -42,7 +46,7 @@ class MathGraph:
         """
         if ax is None:
             if taille is None:
-                taille = (5,5)
+                taille = (5, 5)
             self._fig, self._ax = plt.subplots(figsize=taille)
         else:
             self._ax = ax
@@ -98,7 +102,7 @@ class MathGraph:
                           va=align_vertical, ha=align_horizontal, **kwargs)
         return self
 
-    def repere(self, origine=(0,0),
+    def repere(self, origine=(0, 0),
                      xmin=-10, xmax=10,
                      ymin=-10, ymax=10,
                      xunit=1, yunit=1,
@@ -128,54 +132,53 @@ class MathGraph:
 
         if 'voffset' in kwargs.keys():
             voffset = kwargs['voffset']
-        else: # Valeur par défaut
-            voffset = (ymax-ymin)/200
+        else:  # Valeur par défaut
+            voffset = (ymax - ymin) / 200
 
         if 'hoffset' in kwargs.keys():
             hoffset = kwargs['hoffset']
-        else: # Valeur par défaut
-            hoffset = (xmax-xmin)/200
-
+        else:  # Valeur par défaut
+            hoffset = (xmax - xmin) / 200
 
         if self._ax is None:
-            log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
+            logger.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
         # Axe des abscisses
         ax.hlines(y=origine[1], xmin=xmin, xmax=xmax, colors=couleur)
-        for i in range(int(origine[0])-1, int(xmin-1), -xunit):
+        for i in range(int(origine[0]) - 1, int(xmin - 1), -xunit):
             ax.vlines(x=i,
-                      ymin=origine[1]-(ymax-ymin)/200,
-                      ymax=origine[1]+(ymax-ymin)/200,
+                      ymin=origine[1] - (ymax - ymin) / 200,
+                      ymax=origine[1] + (ymax - ymin) / 200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(i, origine[1]-voffset), va='top', ha='center')
+            ax.annotate(str(i), xy=(i, origine[1] - voffset), va='top', ha='center')
 
-        for i in range(int(origine[0])+1, int(xmax+1), xunit):
+        for i in range(int(origine[0]) + 1, int(xmax + 1), xunit):
             ax.vlines(x=i,
-                      ymin=origine[1]-(ymax-ymin)/200,
-                      ymax=origine[1]+(ymax-ymin)/200,
+                      ymin=origine[1] - (ymax - ymin) / 200,
+                      ymax=origine[1] + (ymax - ymin) / 200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(i, origine[1]-voffset), va='top', ha='center')
+            ax.annotate(str(i), xy=(i, origine[1] - voffset), va='top', ha='center')
 
         # Axe des ordonnées
         ax.vlines(x=origine[0], ymin=ymin, ymax=ymax, colors=couleur)
-        for i in range(int(origine[1])-1, int(ymin-1), -yunit):
+        for i in range(int(origine[1]) - 1, int(ymin - 1), -yunit):
             ax.hlines(y=i,
-                      xmin=origine[0]-(xmax-xmin)/200,
-                      xmax=origine[0]+(xmax-xmin)/200,
+                      xmin=origine[0] - (xmax - xmin) / 200,
+                      xmax=origine[0] + (xmax - xmin) / 200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(origine[1]-hoffset, i), va='center', ha='right')
+            ax.annotate(str(i), xy=(origine[1] - hoffset, i), va='center', ha='right')
 
-        for i in range(int(origine[1])+1, int(ymax+1), yunit):
+        for i in range(int(origine[1]) + 1, int(ymax + 1), yunit):
             ax.hlines(y=i,
-                      xmin=origine[0]-(xmax-xmin)/200,
-                      xmax=origine[0]+(xmax-xmin)/200,
+                      xmin=origine[0] - (xmax - xmin) / 200,
+                      xmax=origine[0] + (xmax - xmin) / 200,
                       colors=couleur)
-            ax.annotate(str(i), xy=(origine[1]-hoffset, i), va='center', ha='right')
+            ax.annotate(str(i), xy=(origine[1] - hoffset, i), va='center', ha='right')
 
         if libelle_origine is None:
-            libelle_origine="({},{})".format(*origine)
-        ax.annotate(libelle_origine, xy=(origine[1]-hoffset, origine[1]-voffset),
+            libelle_origine = "({},{})".format(*origine)
+        ax.annotate(libelle_origine, xy=(origine[1] - hoffset, origine[1] - voffset),
                     va='top', ha='right')
 
         # Traitement de l'échelle
@@ -203,60 +206,59 @@ class MathGraph:
         for p in points:
             X.append(p[0])
             Y.append(p[1])
-        self._ax.scatter(X,Y, c=couleur, **kwargs)
+        self._ax.scatter(X, Y, c=couleur, **kwargs)
 
         return self
 
-    def disque(self, centre=(0,0), rayon=1, couleur='black', **kwargs):
+    def disque(self, centre=(0, 0), rayon=1, couleur='black', **kwargs):
         """
         Dessine un cercle de centre 'centre' et de rayon 'rayon'
         """
         if self._ax is None:
-            log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
+            logger.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
         self._ax.add_patch(
                 Circle(centre, rayon, color=couleur, fill=True, **kwargs))
         return self
 
-    def cercle(self, centre=(0,0), rayon=1, epaisseur=0.02, couleur='black', **kwargs):
+    def cercle(self, centre=(0, 0), rayon=1, epaisseur=0.02, couleur='black', **kwargs):
         """
         Dessine un cercle de centre 'centre' et de rayon 'rayon'
         """
         if self._ax is None:
-            log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
+            logger.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
         self._ax.add_patch(
                 Circle(centre, rayon, color=couleur, fill=False, **kwargs))
         return self
 
-    def arc(self, centre=(0,0), rayon=1, angle_debut=0, angle_fin=90 ,
+    def arc(self, centre=(0, 0), rayon=1, angle_debut=0, angle_fin=90 ,
             epaisseur=0.02, couleur='black', **kwargs):
         """
         Dessine un cercle de centre 'centre' et de rayon 'rayon'
         """
         ax = self._ax
         if self._ax is None:
-            log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
+            logger.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
         ax.add_patch(Wedge(centre, rayon, angle_debut, angle_fin, fill=False,
                            color=couleur, **kwargs))
         return self
 
-    def polygone(self, liste_points=[(0,0), (1,0), (1,1), (0,1)],
+    def polygone(self, liste_points=[(0, 0), (1, 0), (1, 1), (0, 1)],
                        couleur='black', style='-', **kwargs):
         """
         Dessine un polygone à partir d'une liste de points
         """
         if self._ax is None:
-            log.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
+            logger.error("Aucun objet Axes n'est défini. Préciser le paramètre 'ax'")
             return None
 
         self._ax.add_patch(
                 Polygon(liste_points, color=couleur, linestyle=style, fill=False, **kwargs))
-
 
 #        ax.add_collection(PatchCollection(
 #                [Polygon(liste_points, color=couleur, linestyle=style, fill=False)],
@@ -264,23 +266,22 @@ class MathGraph:
 
         return self
 
-    def vecteur(self, origine=(0,0),
+    def vecteur(self, origine=(0, 0),
                 vecteur=None, destination=None,
                 couleur='black', **kwargs):
         """
         Dessine un vecteur
         """
         if vecteur is None and destination is None:
-            vecteur = (1,1);
+            vecteur = (1, 1);
         if vecteur is None:
-            vecteur = (destination[0]-origine[0], destination[1]-origine[1])
+            vecteur = (destination[0] - origine[0], destination[1] - origine[1])
 
-        arrow_size = 0.02*np.linalg.norm(self._ax.get_xlim())
+        arrow_size = 0.02 * np.linalg.norm(self._ax.get_xlim())
         self._ax.arrow(*origine, *vecteur,
                        head_width=arrow_size, head_length=arrow_size,
                        color=couleur, length_includes_head=True, **kwargs)
         return self
-
 
     def fonction(self, f, xmin=None, xmax=None, nb_points=50, couleur='black', **kwargs):
         """
@@ -299,16 +300,25 @@ class MathGraph:
         X = np.linspace(xmin, xmax, nb_points).tolist()
         Y = []
         _err = []
-        for i, x in enumerate(X):
+        for x in X:
             try:
                 Y.append(f(x))
+                logger.debug(f"Point ({x},{Y[-1]})")
             except Exception as err:
+                logger.debug(err)
+                logger.warning(f"La valeur de x={x} n'est pas définie pour la fonction. Elle sera ignorée.")
                 _err.append(x)
         for x in _err:
             X.remove(x)
 
         # Affichage de la fonction
-        self._ax.plot(X,Y, color=couleur, **kwargs)
+        if len(X)>0:
+            logger.debug('Affichage de la fonction pour les valeurs suivantes :', 
+                      'X='+','.join([str(x) for x in X]),
+                      'Y='+','.join([str(y) for y in Y]))
+            self._ax.plot(X, Y, color=couleur, **kwargs)
+        else:
+            logger.info("Aucune valeur retenue pour cette fonction.")
 
         return self
 
