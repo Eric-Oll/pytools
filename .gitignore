@@ -98,3 +98,9 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# PyDev project
+.pydevproject
+
+#Eclipse environnement
+.project
