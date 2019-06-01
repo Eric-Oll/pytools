@@ -76,6 +76,7 @@ class Duck():
             kwargs['level'] = _level
         
         log.basicConfig(**kwargs)
+        self.set_level(kwargs['level'])
         
     def get_level(self):
         return Level(self.logger.getEffectiveLevel())    
@@ -140,6 +141,6 @@ class Duck():
         elif len(list_messages) == 0:
             msg = "<No message>"
         else:
-            msg =  "\n\t- " + "\n\t- ".join([str(item) for item in list_messages])
+            msg =  "\n\t- ".join([str(item) for item in list_messages])
             
         return self.format_header(level).replace("%MESSAGE%",msg)
