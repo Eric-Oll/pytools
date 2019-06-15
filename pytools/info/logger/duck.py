@@ -3,9 +3,12 @@ Created on 11 mai 2019
 
 @author: Eric
 '''
-import logging as log
-from colorama import Fore, Back
 from datetime import datetime
+
+from colorama import Fore, Back
+
+import logging as log
+
 
 class Level:
     '''

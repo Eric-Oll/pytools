@@ -5,12 +5,14 @@ Created on Sat Sep 29 16:31:51 2018
 @author: Eric
 """
 
-import matplotlib.pyplot as plt
 from matplotlib.cm import ScalarMappable
 from matplotlib.colors import to_hex
-from prog.conditions.conditions import between
 
 import logging as log
+import matplotlib.pyplot as plt
+from prog.conditions.conditions import between
+
+
 log.basicConfig(level=log.INFO)
 
 

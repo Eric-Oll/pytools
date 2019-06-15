@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 import unittest
-import datetime as dt
 
-from pytools.timetools import str_to_date
+import datetime as dt
 from pytools.timetools import diff_times
+from pytools.timetools import str_to_date
 
 
 class TestTimetools(unittest.TestCase):

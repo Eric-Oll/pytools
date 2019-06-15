@@ -5,10 +5,10 @@ Created on Sat Oct 13 11:18:49 2018
 @author: Eric
 """
 
-import unittest
-import datetime as dt
-
 from pytools.time.chrono import Chrono
+import unittest
+
+import datetime as dt
 
 
 class TestChrono(unittest.TestCase):

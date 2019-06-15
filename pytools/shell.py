@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """This module provides a several function useful in shell"""
-import sys
 import os
+import sys
 
 
 def head(file='', lines=10, output=sys.stdout):

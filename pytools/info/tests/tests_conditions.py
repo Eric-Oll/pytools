@@ -6,6 +6,7 @@ Created on Sun Sep 30 11:59:25 2018
 """
 
 import unittest
+
 from prog.conditions.conditions import between, is_iterable
 
 

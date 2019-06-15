@@ -18,14 +18,17 @@ ________________________
 """
 __version__ = 0.5
 
-import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.patches import Circle, Wedge, Polygon
-#from matplotlib.collections import PatchCollection
+from pytools.info.logger.duck import Duck
 
+from matplotlib.patches import Circle, Wedge, Polygon
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+#from matplotlib.collections import PatchCollection
 #import logging as logger
 #logger.basicConfig(level=logger.DEBUG)
-from pytools.info.logger.duck import Duck
 logger = Duck(level = Duck.INFO)
 
 class MathGraph:

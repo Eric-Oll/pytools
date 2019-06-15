@@ -8,11 +8,11 @@ Created on Sat Oct 13 10:22:36 2018
 Ce module implémente un objet permettant de mesure le temps entre deux jalons.
 """
 
-import datetime as dt
-import pandas as pd
-import logging as log
-
 from pytools.time.timetools import diff_times
+
+import datetime as dt
+import logging as log
+import pandas as pd
 
 
 class Chrono:
