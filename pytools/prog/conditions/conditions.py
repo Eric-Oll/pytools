@@ -8,6 +8,7 @@ __version__ = 0.1
 
 import collections
 
+
 def if_None(valeur, default):
     """
         Retour <valeur> si elle n'est pas nulle
