@@ -15,16 +15,21 @@ ________________________
     - Ajout de la représentation de l'objet (surdéfnition de __repr__)
         (affiche le titre si défini + affiche le graphique)
 0.5 : Changement de système de journalisation des messages. Utilisation des objets Duck.
+0.6 : Ajoute des fonctions :
+    - 'chemin' : pour tracer des chemins
+    - 'bezier' : pour faire une courbe de bézier (à partir de la fonction chemin)
 """
-__version__ = 0.5
+__version__ = 0.6
 
 from pytools.info.logger.duck import Duck
 
-from matplotlib.patches import Circle, Wedge, Polygon
+from matplotlib.patches import Circle, Wedge, Polygon, PathPatch
+from matplotlib.path import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
 
+from pytools.prog.conditions.conditions import is_iterable
 
 #from matplotlib.collections import PatchCollection
 #import logging as logger
@@ -39,6 +44,7 @@ class MathGraph:
         BAS = 'bottom'
         DROITE = 'right'
         GAUCHE = 'left'
+        
 
     def __init__(self, ax=None, taille=None, titre=""):
         """
@@ -325,4 +331,109 @@ class MathGraph:
 
         return self
 
+
+    def chemin(self, chemin=None, liste_points=None, liste_methodes=None, couleur_surface="none", **kwargs):
+        """
+        Dessine le chemin définit :
+        - soit par son 'chemin' = alternance de points et de fonctions prédéfinis à appliquer
+        - soit par une liste de points 'liste_points' et les fonctions à appliquer.
+        """
+        if liste_points is None and liste_methodes is None:
+            if chemin is None:
+                logger.error(f'{__class__}.chemin : Impossible de tracer le chemin.',
+                             'Utiliser le paramètre "chemin" pour définir le chemin',
+                             'ou utiliser les paramètres "liste_point" et "liste_fonctions"')
+            elif is_iterable(chemin):
+                liste_points = []
+                liste_methodes = []
+                for item in chemin:
+                    if isinstance(item, Chemin):
+                        liste_points.append(item.get_point())
+                        liste_methodes.append(item.get_methode())
+            else:
+                logger.error(f'{__class__}.chemin : Le paramètre "chemin" doit être itérable.')
+        
+        logger.debug(f'{__class__}.chemin : Paramètres finaux ', 
+                     f'liste_points : {liste_points}',
+                     f'liste_methodes : {liste_methodes}')
+        
+        # Affichage du chemin
+        if len(liste_points)>0:
+            fc = kwargs.pop('fc', couleur_surface)
+            path_patch = PathPatch(Path(liste_points, liste_methodes), fc=fc ,**kwargs)
+            self._ax.add_patch(path_patch)
+        
+        return self        
+# Fin de la classe MathGraph     
+           
+class Chemin:
+    STOP = Path.STOP
+    MOVETO = Path.MOVETO
+    LINETO = Path.LINETO
+    CURVE3 = Path.CURVE3
+    CURVE4 = Path.CURVE4
+    CLOSEPOLY =  Path.CLOSEPOLY
+    
+    @classmethod
+    def MoveTo(cls, point):
+        logger.debug(f"{__class__}.MoveTo : point = {point}")
+        return cls(point, methode=Chemin.MOVETO)
+    
+    @classmethod
+    def LineTo(cls, point):
+        logger.debug(f"{__class__}.LineTo : point = {point}")
+        return cls(point, methode=Chemin.LINETO)
+    
+    @classmethod
+    def Bezier3(cls, point):
+        logger.debug(f"{__class__}.Bezier3 :  point = {point}")
+        return cls(point, methode=Chemin.CURVE3)
+        
+    @classmethod
+    def Bezier4(cls, point):
+        logger.debug(f"{__class__}.Bezier4 :  point = {point}")
+        return cls(point, methode=Chemin.CURVE4)
+
+    @classmethod
+    def ClosePoly(cls, point):
+        logger.debug(f"{__class__}.ClosePoly : point = {point}")
+        return cls(point, methode=Chemin.CLOSEPOLY)
+    
+    @classmethod
+    def Stop(cls, point):
+        logger.debug(f"{__class__}.Stop : point = {point}")
+        return cls(point, methode=Chemin.STOP)
+    
+    def __init__(self, point, methode):
+        logger.debug(f"{__class__}.__init__ :",
+                    f"point = {point}",
+                    f"methode = {methode}" 
+                    )
+        self.methode = methode
+        self.point = point
+        logger.debug(repr(self))
+            
+    def __repr__(self):
+        if self.get_methode() == Chemin.MOVETO:
+            return f"<Chemin.MOVETO {self.point}>"
+        elif self.get_methode() == Chemin.LINETO:
+            return f"<Chemin.LINETO {self.point}>"
+        elif self.get_methode() == Chemin.CURVE3:
+            return f"<Chemin.BEZIER3 : {self.point}>"
+        elif self.get_methode() == Chemin.CURVE4:
+            return f"<Chemin.BEZIER4 : {self.point}>"
+        elif self.get_methode() == Chemin.CLOSEPOLY:
+            return f"<Chemin.CLOSEPOLY : {self.point}>"
+        elif self.get_methode() == Chemin.STOP:
+            return f"<Chemin.STOP : {self.point}>"
+        else:
+            return f"<Chemin.UNDEFINED>"
+
+    def get_methode(self):
+        return self.methode
+    
+    def get_point(self):
+        return self.point
+# Fin de la classe CHEMIN
+                
 # End of module MathGraph
