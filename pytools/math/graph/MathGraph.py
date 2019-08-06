@@ -177,12 +177,13 @@ class MathGraph:
         GAUCHE = 'left'
         
 
-    def __init__(self, ax=None, taille=None, titre=""):
+    def __init__(self, ax=None, taille=None, titre="", couleur_fond='white'):
         """
         Initialise le graphique.
         - Si ax n'est pas définit, MathGraph crée automatiquement un nouvel Axes
           Sinon on utilise celui qui est définit
         - taille : définit la taille du graphique en pouce. Par défaut (5,5)
+        - couleur_fond : couleur de fond de l'image. Par defaut la couleur est blanche ('white')
         """
         if ax is None:
             if taille is None:
@@ -193,6 +194,7 @@ class MathGraph:
             self._fig = ax.get_figure()
             if taille is not None:
                 self._fig.set_size_inches(taille)
+        self._fig.set_facecolor(couleur_fond)
         self.titre(titre)
 
     def __repr__(self):
