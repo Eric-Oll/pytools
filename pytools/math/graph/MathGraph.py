@@ -8,7 +8,7 @@ ________________________
 0.2 :*
 0.3 :*
 0.4 :
-    - TODO Ajout de la fonction point pour affiche un point ou une liste de points (scatter)
+    - Ajout de la fonction point pour affiche un point ou une liste de points (scatter)
     - Amélioration de l'affichage des labels sur les axes
         (avec ajout des nouveaux paramètres voffset et hoffset)
     - Ajout du paramètre titre dans la création du graphique (via __init__)

@@ -105,3 +105,6 @@ ENV/
 #Eclipse environnement
 .project
 .settings
+
+# PyCharm
+/.idea/
