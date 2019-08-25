@@ -1,12 +1,14 @@
-'''
+"""
+Module de journalisation des traces avec coloration en fonctions des niveaux de traces
+
+Ce module s'appuie sur le module 'logging'
+-----------------------------------------------------
 Created on 11 mai 2019
 
 @author: Eric
-'''
+"""
 from datetime import datetime
-
 from colorama import Fore, Back
-
 import logging as log
 
 
@@ -47,7 +49,10 @@ class Duck():
     FORMAT = "%(message)s"
     DEFAUL_DUCK_FORMAT = "%LEVEL%:%DATE%:%MESSAGE%"
     DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-    
+    DEFAULT_BULLETPOINT = '\t- '
+    DEFAULT_JUMPLINE_BEFORE = 0
+    DEFAULT_JUMPLINE_AFTER = 0
+
     # LEVEL CONSTANTES 
     DEBUG = Level(log.DEBUG)
     INFO = Level(log.INFO)
@@ -93,36 +98,73 @@ class Duck():
             log.error(f"{self.__class__}.set_level :'level' est de type {type(level)} et doit être de type 'Level' ou 'int'.")    
     
     def debug(self, *args, **kwargs):
+        lines_before = kwargs.pop('lines_before', Duck.DEFAULT_JUMPLINE_BEFORE)
+        lines_after = kwargs.pop('lines_after', Duck.DEFAULT_JUMPLINE_AFTER)
+        bullet = kwargs.pop('bulletpoint', Duck.DEFAULT_BULLETPOINT)
+
         _list = list(args)
-        msg = Fore.BLUE + self.format_message(Duck.DEBUG,_list) + Fore.RESET
+        msg = Fore.BLUE + self.format_message(Duck.DEBUG, _list,
+                                              bulletpoint=bullet,
+                                              lines_before=lines_before,
+                                              lines_after=lines_after) + Fore.RESET
         self.logger.debug(msg, **kwargs)
         
     def info(self, *args, **kwargs):
+        lines_before = kwargs.pop('lines_before', Duck.DEFAULT_JUMPLINE_BEFORE)
+        lines_after = kwargs.pop('lines_after', Duck.DEFAULT_JUMPLINE_AFTER)
+        bullet = kwargs.pop('bulletpoint', Duck.DEFAULT_BULLETPOINT)
         _list = list(args)
-        msg = Fore.GREEN + self.format_message(Duck.INFO, _list) + Fore.RESET
+        msg = Fore.GREEN + self.format_message(Duck.INFO, _list,
+                                              bulletpoint=bullet,
+                                              lines_before=lines_before,
+                                              lines_after=lines_after) + Fore.RESET
         self.logger.info( msg, **kwargs)
         
     def warning(self, *args, **kwargs):
+        lines_before = kwargs.pop('lines_before', Duck.DEFAULT_JUMPLINE_BEFORE)
+        lines_after = kwargs.pop('lines_after', Duck.DEFAULT_JUMPLINE_AFTER)
+        bullet = kwargs.pop('bulletpoint', Duck.DEFAULT_BULLETPOINT)
         _list = list(args)
-        msg = Fore.MAGENTA + self.format_message(Duck.WARNING,_list) + Fore.RESET
+        msg = Fore.MAGENTA + self.format_message(Duck.WARNING,_list,
+                                              bulletpoint=bullet,
+                                              lines_before=lines_before,
+                                              lines_after=lines_after) + Fore.RESET
         self.logger.warning(msg, **kwargs)
 
     def error(self, *args, **kwargs):
+        lines_before = kwargs.pop('lines_before', Duck.DEFAULT_JUMPLINE_BEFORE)
+        lines_after = kwargs.pop('lines_after', Duck.DEFAULT_JUMPLINE_AFTER)
+        bullet = kwargs.pop('bulletpoint', Duck.DEFAULT_BULLETPOINT)
         _list = list(args)
-        msg = Fore.RED + self.format_message(Duck.ERROR,_list) + Fore.RESET
+        msg = Fore.RED + self.format_message(Duck.ERROR,_list,
+                                              bulletpoint=bullet,
+                                              lines_before=lines_before,
+                                              lines_after=lines_after) + Fore.RESET
         self.logger.error(msg, **kwargs)
         
     def critical(self, *args, **kwargs):
+        lines_before = kwargs.pop('lines_before', Duck.DEFAULT_JUMPLINE_BEFORE)
+        lines_after = kwargs.pop('lines_after', Duck.DEFAULT_JUMPLINE_AFTER)
+        bullet = kwargs.pop('bulletpoint', Duck.DEFAULT_BULLETPOINT)
         _list = list(args)
-        msg = Back.MAGENTA + Fore.WHITE+ self.format_message(Duck.CRITICAL,_list) + Fore.RESET + Back.RESET
+        msg = Back.MAGENTA + Fore.WHITE+ self.format_message(Duck.CRITICAL,_list,
+                                              bulletpoint=bullet,
+                                              lines_before=lines_before,
+                                              lines_after=lines_after) + Fore.RESET + Back.RESET
         self.logger.critical(msg, **kwargs)
         
     def fatal(self, *args, **kwargs):
+        lines_before = kwargs.pop('lines_before', Duck.DEFAULT_JUMPLINE_BEFORE)
+        lines_after = kwargs.pop('lines_after', Duck.DEFAULT_JUMPLINE_AFTER)
+        bullet = kwargs.pop('bulletpoint', Duck.DEFAULT_BULLETPOINT)
         _list = list(args)
-        msg = Back.RED + Fore.WHITE+ self.format_message(Duck.FATAL,_list) + Fore.RESET + Back.RESET
+        msg = Back.RED + Fore.WHITE+ self.format_message(Duck.FATAL,_list,
+                                              bulletpoint=bullet,
+                                              lines_before=lines_before,
+                                              lines_after=lines_after) + Fore.RESET + Back.RESET
         self.logger.fatal(msg, **kwargs)
 
-    def format_header(self, level):
+    def format_header(self, level, lines_before=0):
         if isinstance(level, Level):
             str_level = str(level)
         elif isinstance(level, int):
@@ -132,18 +174,30 @@ class Duck():
             
         header = self.format.upper().replace("%LEVEL%", str_level)
         header = header.replace("%DATE%", datetime.today().strftime(self.DATE_FORMAT))
+        header = '\n'*lines_before + header
         
         if not isinstance(header, str):
             log.error(f"{self.__class__}.format_header : Le type retourné est {type(header)}. Attendu 'str'")
             return "DEFAULT_HEADER:{}:%MESSAGE%".format(datetime.today())
         return header
 
-    def format_message(self, level, list_messages):
+    def format_message(self, level, list_messages,
+                       bulletpoint='\t- ', lines_before=0 , lines_after=0):
+        """
+        Format le message de trace
+        :param level: Niveau de trace
+        :param list_messages: Ensemble des lignes à afficher
+        :param kwargs: paramètres complémentaires
+            - bulletpoint : format de puce pour les lignes secondaires. Par défaut '\t- '
+            - lines_after : Nombre de ligne après le message
+        :return: La chaine formaté
+        """
+        # Récupération des paramètres optionnels
         if len(list_messages) == 1:
             msg = str(list_messages.pop())
         elif len(list_messages) == 0:
             msg = "<No message>"
         else:
-            msg =  "\n\t- ".join([str(item) for item in list_messages])
-            
-        return self.format_header(level).replace("%MESSAGE%",msg)
+            msg =  ("\n"+bulletpoint).join([str(item) for item in list_messages])
+        msg = msg + "\n" * lines_after
+        return self.format_header(level, lines_before).replace("%MESSAGE%",msg)
