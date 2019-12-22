@@ -338,6 +338,27 @@ class MathGraph:
 
         return self
 
+    def droite(self, liste_points, intervalle=(-10, 10), couleur='black', **kwargs):
+        """
+        Dessine une droite de resgression sur l'intervalle `intervalle` correspondants à la liste des points
+        :param liste_points: Liste des points pour le calcul de la droite = iterable(tuple(x,y)) par exemple [(x1,y1), (x2, y2)]
+        :param intervalle: Intervalle de traçage de la droite
+        :param nb_points: Nombre de point pour le dessin de la droite
+        :param couleur: Couleur de la droite
+        :param kwargs: Autres paramètre pour le dessin
+        :return:
+        """
+        # Calcul de la droite de regression
+        X = [point[0] for point in liste_points]
+        Y = [point[1] for point in liste_points]
+        droite_ = np.poly1d(np.polyfit(X, Y, deg=1))
+
+        # Tracage de la droite
+        point_debut = (intervalle[0], droite_(intervalle[0]))
+        point_fin = (intervalle[1], droite_(intervalle[1]))
+        self.segment(point_debut, point_fin, couleur=couleur, **kwargs)
+
+
     def point(self, points, couleur='black', **kwargs):
         """
         Dessine un point ou une liste de points
