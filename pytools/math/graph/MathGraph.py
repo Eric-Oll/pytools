@@ -235,12 +235,21 @@ class MathGraph:
         return self
 
     def texte(self, position, texte,
+              x_offset=0, y_offset=0,
               align_vertical=ALIGNEMENT.CENTRE,
               align_horizontal=ALIGNEMENT.CENTRE, **kwargs):
         """
         Ajoute du texte au graphique
+        :param position: Coordonnées de positionnement du texte (sous la forme d'un tuple)
+        :param texte: Texte à afficher
+        :param x_offset: Décalage des coordonnées par rapport à l'axe des abscisses
+        :param y_offset: Décalage des coordonnées par rapport à l'axe des ordonnées
+        :param align_vertical: Alignement vertical
+        :param align_horizontal: Alignement horizontal
+        :param kwargs: autres paramètres matplotlib
+        :return:
         """
-        self._ax.annotate(texte, xy=position,
+        self._ax.annotate(texte, xy=(position[0]+x_offset,position[1]+y_offset),
                           va=align_vertical, ha=align_horizontal, **kwargs)
         return self
 
