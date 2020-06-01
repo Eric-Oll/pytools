@@ -5,7 +5,7 @@ Created on 15 juin 2019
 '''
 
 from pytools.info.logger.duck import Duck; logger = Duck(level=Duck.DEBUG)
-from pytools.threading import threading_function
+from pytools.prog.threading import threading_function
 import time
 
 def lambda_function(param1="Value", param2="Message", return_code=0):

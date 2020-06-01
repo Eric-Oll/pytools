@@ -10,7 +10,7 @@ from matplotlib.colors import to_hex
 
 import logging as log
 import matplotlib.pyplot as plt
-from prog.conditions.conditions import between
+from ..prog.conditions.conditions import between
 
 
 log.basicConfig(level=log.INFO)
