@@ -1,0 +1,19 @@
+/*CSS For Dataframe*/
+table {
+    border:none;
+}
+
+tr, td {
+    border: 1px silver solid;
+    text-align:center;
+}
+
+td {
+    min-width: 20px;
+}
+
+th {
+    border:none;
+    font-style: italic;
+    text-align:center;
+}
