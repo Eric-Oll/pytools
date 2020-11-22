@@ -6,7 +6,7 @@ const taille =  document.getElementById("size-value");
 const contenu = document.getElementById('contenu');
 const error_msg = document.getElementById('error-message');
 
-window.onresize = sizeChange;
+//window.onresize = sizeChange;
 
 var connection ;
 var message = {
@@ -29,14 +29,13 @@ function convertTableJsonToHtml(data){
     let htmlTable = "<TABLE id='table-data'>\n<CAPTION id='caption-data'></CAPTION>\n";
 
     // Entête de colonne
-    htmlTable += "<THEAD class='table-head'>\n<TR id='table-entete-ligne-data'><TH id='table-entete-index-data' class='table-entete'></TH>"
+    htmlTable += "<THEAD id='table-data-head' class='table-head'>\n<TR id='table-entete-ligne-data'><TH id='table-entete-index-data' class='table-entete'></TH>"
     cur_col = 0;
     for(col in data){
       htmlTable += "<TH id='table-entete-col" + cur_col + "-data' class='table-entete'>" + col + "</TH>";
       cur_col++;
     }
-    htmlTable += "</TR>\n</THEAD>\n"
-
+    htmlTable += "</TR>\n</THEAD>\n";
 
     // Données du tableau
     htmlTable += "<TBODY class='table-body'>\n"
@@ -178,6 +177,7 @@ function receiveData(event) {
     try{
         message = new Message(event.data);
         contenu.innerHTML = convertTableJsonToHtml(message.data);
+        //document.getElementById("header-columns").innerHTML = document.getElementById("table-data-head").innerHTML;
         title.innerHTML = message.title;
         ongletTitle.innerHTML = message.title;
         taille.innerHTML = message.size;
