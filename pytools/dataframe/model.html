@@ -1,16 +1,47 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <meta charset="utf-8" />
         <title>{title}</title>
         <link rel="stylesheet" type="text/css" href="{stylesheet_file}">
         <style>{stylesheet}</style>
-        <SCRIPT>
-            {javascript}
-        </SCRIPT>
+        <input type="number" id="id_client" name="id_client" size="2" value="{id_client}" disabled hidden/>
+
     </head>
     <body>
-        <h1>{title}</h1>
-        <hr />
-        {table}
+    <div id="main">
+        <header id="header">
+            <h1 id="title">{title}</h1>
+            <nav id="navbar">
+                <p id="size-zone">
+                    <span id="size-caption">Nombre de lignes : </span>
+                    <span id="size-value"></span>
+                </p>
+                <div id="commands">
+                    <input type="checkbox" id="btnMessageView" name="btnMessageView" checked/>
+                    <label for="btnMessageView">Fenêtre des messages</label>
+                    <button type="button" id="btnSend" onclick="sendData">Rafraichir les données</button>
+                    <button type="button" id="btnClose">Fermer la connexion</button>
+                </div>
+            </nav>
+            <hr />
+        </header>
+        <section id="sect-contenu">
+            <div id="contenu">{table}</div>
+        </section>
+        <footer id="footer">
+            <hr />
+            <div id="error-message">
+
+            </div>
+        </footer>
+    </div>
     </body>
+    <SCRIPT>
+        {javascript}
+        document.getElementById('btnSend').onclick = sendData;
+        document.getElementById('btnClose').onclick = closeConnexion;
+        document.getElementById('btnMessageView').onclick = messageViewerChange;
+        openConnection();
+    </SCRIPT>
 </html>

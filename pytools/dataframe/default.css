@@ -1,19 +1,120 @@
 /*CSS For Dataframe*/
+body{
+    background: rgb(40,40,40);
+    color: white;
+    margin-top: 0px;
+    height: 100%;
+}
+header{
+    background: rgba(40,40,40,1);
+    position: fixed;
+    top:0px;
+    width: 100%;
+    height: 120;
+    margin-right: 5px;
+    overflow: hidden;
+}
+h1{
+    margin-top: 0px;
+    margin-bottom: 2px;
+}
+nav{
+    display: flex;
+    justify-content: space-between;
+}
+#size-zone{
+    margin-top: 0px;
+    margin-bottom: 0px;
+    font-size: 20px;
+    font-style: italic;
+    color: DodgerBlue;
+}
+#size-value{
+    font-weight: bold;
+}
+#sect-contenu{
+    position: relative;
+    top:80px;
+    bottom: 120px;
+}
+#contenu{
+    margin-top: auto;
+    margin-bottom: auto;
+    overflow: auto;
+}
 table {
     border:none;
+    width: auto;
+    height: 100%;
+    border-spacing: 0px;
+    border-collapse: collapse;
 }
-
-tr, td {
-    border: 1px silver solid;
-    text-align:center;
+thead, tbody, tr{
+    display: table;
+    width: 100%;
+    table-layout: fixed;
 }
-
-td {
-    min-width: 20px;
+thead.table-head{
+    color: DodgerBlue;
+    border-bottom: 1px solid white;
 }
 
 th {
     border:none;
     font-style: italic;
     text-align:center;
+}
+tbody.table-body{
+    /*position: fixed;
+    top: 20px;*/
+    display:block;
+    /*max-height:160px;*/
+    overflow-y:scroll;
+}
+tr {
+    /*border-bottom: 1px solid red;*/
+}
+
+td {
+    min-width: 20px;
+    text-align:center;
+    padding: 2px
+}
+
+.table-index{
+    border: none;
+    text-align:right;
+    color:silver;
+    font-style: italic;
+    margin-right: 2px;
+}
+.ligne-pair{
+    /*background-color: rgb(15,15,70);*/
+    border-bottom: 1px solid rgb(100,100,255);
+}
+.ligne-impair{
+    border-bottom: 1px solid rgb(100,255,255);
+}
+.value-positif{
+    color: lightgreen;
+    text-align: right;
+}
+.value-negatif{
+    color: red;
+    text-align: right;
+}
+.value-text{
+    text-align: left;
+}
+footer{
+    position: absolute;
+    bottom: 0;
+    background: #000;
+}
+#error-message{
+    margin-bottom: 0px;
+    /*height: 60px;*/
+    min-height: 40px;
+    max-height: 200px;
+    overflow: auto;
 }
