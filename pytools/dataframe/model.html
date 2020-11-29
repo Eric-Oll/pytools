@@ -18,7 +18,7 @@
                     <span id="size-value"></span>
                 </p>
                 <div id="commands">
-                    <input type="checkbox" id="btnMessageView" name="btnMessageView" checked/>
+                    <input type="checkbox" id="btnMessageView" name="btnMessageView" />
                     <label for="btnMessageView">Fenêtre des messages</label>
                     <button type="button" id="btnSend" onclick="sendData">Rafraichir les données</button>
                     <button type="button" id="btnClose">Fermer la connexion</button>
@@ -44,5 +44,6 @@
         document.getElementById('btnClose').onclick = closeConnexion;
         document.getElementById('btnMessageView').onclick = messageViewerChange;
         openConnection();
+        messageViewerChange();
     </SCRIPT>
 </html>

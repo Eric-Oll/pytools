@@ -3,7 +3,7 @@
 Ce module contient des fonctions d'affichage des objets du module Pandas.
 """
 import os
-import logging as log; log.basicConfig(level=log.INFO)
+import logging as log; log.basicConfig(level=log.DEBUG)
 from IPython.core.display import display, HTML
 import subprocess
 import base64
@@ -100,7 +100,7 @@ class Message:
     def __init__(self, json_string):
         self._message = json.loads(json_string)
         if not isinstance(self._message, dict):
-            raise TypeError("Message.__init__ : Bad type for result of json parsing.")
+            raise TypeError(f"{__class__}.__init__ : Bad type for result of json parsing.")
 
     def __repr__(self):
         return f"<Message : {str(self)}>"
@@ -159,7 +159,7 @@ class WebDataframeViewer:
             cls.Event_loop = asyncio.new_event_loop()
 
         cls.Alive_server = True
-        log.debug("{__class__}.server_daemon : Démarrage du serveur ")
+        log.debug(f"{__class__}.server_daemon : Démarrage du serveur ")
         cls.Server_connexion = websockets.serve(cls.server_daemon, cls.ADDRESS, cls.PORT)
         cls.Event_loop.run_until_complete(cls.Server_connexion)
 
@@ -172,42 +172,58 @@ class WebDataframeViewer:
         cls.Instances = dict()
 
     @classmethod
+    def Disconnect_client(cls, client):
+        log.debug(f"{__class__}.Disconnect_client : Déconnexion du client '{client}' ")
+        try:
+            client.close()
+        except:
+            pass
+        del cls.Client_connexions[client]
+        if len(cls.Client_connexions) == 0:
+            cls.Stop_server()
+
+    @classmethod
     async def server_daemon(cls, client, path):
 
         while cls.Alive_server:
-            async for message_buffer in client:
-                message = Message(message_buffer)
-                log.debug("{__class__}.server_daemon : Message reçu : " + repr(message))
-                try:
-                    # TODO DELETE : message_json = json.loads(message)
-
-                    if message.message_type == MESSAGE_TYPE.CONNECTION:
-                        log.debug("{__class__}.server_daemon : Nouvelle connexion - Client " + str(message.id_client))
-                        cls.Client_connexions[client] = message.id_client
-                        message.message_type = MESSAGE_TYPE.ACKNOWLEDGE
-                        await client.send(str(message))
-
-                    elif message.message_type == MESSAGE_TYPE.DISCONNECTION:
-                        del cls.Client_connexions[client]
-                        if len(cls.Client_connexions) == 0:
-                            cls.Stop_server()
-
-                    elif message.message_type == MESSAGE_TYPE.DATA_REFRESH:
-                        id_client = cls.Client_connexions[client]
-                        id_client = message.id_client # TODO : Controler que le client est bien associé à l'id_client
-                        instance = cls.Instances.get(id_client, None)
-                        if instance is not None:
-                            message[Message.DATA_BUFFER] = instance.dataframe_to_html()
-                            message[Message.DATA_TITLE] = instance.title
-                            message[Message.DATA_SIZE] = instance.size
+            try:
+                async for message_buffer in client:
+                    message = Message(message_buffer)
+                    log.debug(f"{__class__}.server_daemon : Message reçu : " + repr(message))
+                    try:
+                        if message.message_type == MESSAGE_TYPE.CONNECTION:
+                            log.debug(f"{__class__}.server_daemon : Nouvelle connexion {client} - Client " + str(message.id_client))
+                            cls.Client_connexions[client] = message.id_client
+                            message.message_type = MESSAGE_TYPE.ACKNOWLEDGE
                             await client.send(str(message))
-                        else: # L'instance n'existe pas => On déconnecte
-                            pass # TODO gérer la déconnexion si pas d'instance
-                    else:
-                        await client.send(message)
-                        raise Exception(f"{__class__}.server_daemon : Type de message inconnu. (type de message {type(message)})")
-                except Exception as err:
-                    log.error(f"{__class__}.server_daemon :  : Format de message incorrect : {type(message)}{message}")
+
+                        elif message.message_type == MESSAGE_TYPE.DISCONNECTION:
+                            cls.Disconnect_client(client)
+
+                        elif message.message_type == MESSAGE_TYPE.DATA_REFRESH:
+                            id_client = cls.Client_connexions[client]
+                            if id_client != message.id_client:
+                                log.warning(f"{__class__}.server_daemon : id_client incohérent entre la connexion et le message.")
+                            id_client = message.id_client
+                            instance = cls.Instances.get(id_client, None)
+                            if instance is not None:
+                                message[Message.DATA_BUFFER] = instance.dataframe_to_html()
+                                message[Message.DATA_TITLE] = instance.title
+                                message[Message.DATA_SIZE] = instance.size
+                                await client.send(str(message))
+                            else: # L'instance n'existe pas => On déconnecte
+                                try:
+                                    cls.Disconnect_client(client)
+                                except Exception as err:
+                                    log.error(f"{__class__}.server_daemon :  : Erreur lors de la déconnexion du client : {client}\n->{err}")
+                        else:
+                            await client.send(message)
+                            raise Exception(f"{__class__}.server_daemon : Type de message inconnu. (type de message {type(message)})")
+                    except Exception as err:
+                        log.error(f"{__class__}.server_daemon :  : Format de message incorrect : {type(message)}{message}")
+            except websockets.exceptions.ConnectionClosedError as err:
+                log.debug(f"{__class__}.server_daemon :  : Disconnection from {client}\n-> {err}")
+                cls.Disconnect_client(client)
 
         #cls.Server_connexion.close()
         cls.Server_connexion = None
@@ -223,7 +239,7 @@ class WebDataframeViewer:
        elif os.path.exists(os.path.dirname(__file__)+'/'+ cls.HTML_MODEL_FILE):
            filename = os.path.dirname(__file__)+'/'+ cls.HTML_MODEL_FILE
        else:
-           log.error("<HTMLConnect>.get_html_model : Fichier HTML modèle introuvable.")
+           log.error(f"{__class__}.get_html_model : Fichier HTML modèle introuvable.")
            return
 
        with open(filename, 'r', encoding='utf-8') as file:
@@ -237,10 +253,10 @@ class WebDataframeViewer:
         elif os.path.exists(os.path.dirname(__file__) + '/' + cls.CSS_DEFAULT_FILE):
             filename = os.path.dirname(__file__) + '/' + cls.CSS_DEFAULT_FILE
         else:
-            log.error("<HTMLConnect>.get_default_css : Fichier CSS introuvable.")
+            log.error(f"{__class__}.get_default_css : Fichier CSS introuvable.")
             return
 
-        with open(filename, 'r') as file:
+        with open(filename, 'r', encoding='utf-8') as file:
             css_content = file.readlines()
         return "".join(css_content)
 
@@ -251,10 +267,10 @@ class WebDataframeViewer:
         elif os.path.exists(os.path.dirname(__file__) + '/' + cls.JS_FILE):
             filename = os.path.dirname(__file__) + '/' + cls.JS_FILE
         else:
-            log.error("<HTMLConnect>.get_javascript : Fichier Javascript introuvable.")
+            log.error(f"{__class__}.get_javascript : Fichier Javascript introuvable.")
             return
 
-        with open(filename, 'r') as file:
+        with open(filename, 'r', encoding='utf-8') as file:
             js_content = file.readlines()
         return "".join(js_content)
 
@@ -277,7 +293,7 @@ class WebDataframeViewer:
         self._id_client = self.get_IdClient()
         self.Instances[self.id_client] = self
 
-        # TODO Contrôler l'état du serveur. Si STOP alors le lancer
+        # Contrôle l'état du serveur. Si STOP alors le lancer
         if not self.Alive_server:
             self.Start_server()
 
@@ -310,7 +326,6 @@ class WebDataframeViewer:
         return len(self.dataframe)
 
     def dataframe_to_html(self):
-        #return self.dataframe.to_html() # TODO Faire son propre parser HTML pour y ajouter les class HTML
         return self.dataframe.fillna("<null>").to_dict()
 
     def create_html_client(self):
@@ -324,7 +339,7 @@ class WebDataframeViewer:
             .replace("{javascript}", self.get_javascript())\
             .replace("{id_client}", str(self.id_client))
 
-        # TODO : Lancement du browser et affichage de la page
+        # Lancement du browser et affichage de la page
         log.debug(f"{__class__}.create_html_client : Page HTML\n{html}")
         subprocess.call([self.browser, URL_HEADER + str(base64.b64encode(bytes(html, 'utf-8')))[2:-1]])
 
