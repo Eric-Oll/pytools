@@ -3,7 +3,7 @@
 Ce module contient des fonctions d'affichage des objets du module Pandas.
 """
 import os
-import logging as log; log.basicConfig(level=log.DEBUG)
+import logging as log; log.basicConfig(level=log.INFO)
 from IPython.core.display import display, HTML
 import subprocess
 import base64
@@ -11,6 +11,7 @@ from threading import Thread
 from socket import socket, AF_INET, SOCK_STREAM
 from select import select
 import json
+import datetime
 
 import websockets
 import asyncio
@@ -130,6 +131,9 @@ class WebDataframeViewer:
     """
 
     """
+    #TODO : Créer une méthode de remise à Zéro (arret du serveur et suppression des instance)
+    # TODO : Faire un test avec le type Date Timestamp
+
     # GLOBAL VARIABLES
     # ... Serveur
     Event_loop = None
@@ -326,7 +330,9 @@ class WebDataframeViewer:
         return len(self.dataframe)
 
     def dataframe_to_html(self):
-        return self.dataframe.fillna("<null>").to_dict()
+        buffer = self.dataframe.fillna("<null>").applymap(lambda x: str(x) if isinstance(x, (datetime.datetime, datetime.date)) else x).to_dict()
+        log.debug(f"{__class__}.dataframe_to_html : buffer = {buffer}")
+        return buffer
 
     def create_html_client(self):
         """
