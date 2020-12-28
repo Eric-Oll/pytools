@@ -94,8 +94,10 @@ MESSAGE_TYPE = {
 // -------------------------------------------------------------------------------------------
 class Message {
     constructor(json_buffer){
+        console.log("Nouveau message :\n"+json_buffer);
         try{
             if (json_buffer == ""){
+                console.log("  -> Message vide");
                 this._message = {
                     id_client: 0,
                     message_type: "",
@@ -105,7 +107,9 @@ class Message {
                 }
             }
             else{
+                console.log("  -> Parsing message ...");
                 this._message = JSON.parse(json_buffer);
+                console.log("  -> ... message parsed !");
             }
         }
         catch(error){
