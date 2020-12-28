@@ -400,7 +400,7 @@ class WebDataframeViewer:
             return None
 
     def dataframe_to_html(self):
-        buffer = self.dataframe.fillna("<null>").applymap(lambda x: str(x) if isinstance(x, (datetime.datetime, datetime.date)) else x).to_dict()
+        buffer = self.dataframe.fillna("<null>").applymap(lambda x: str(x) if not isinstance(x, (str, int, float, bool)) else x).to_dict()
         log.debug(f"{__class__}.dataframe_to_html : buffer = {buffer}")
         return buffer
 
