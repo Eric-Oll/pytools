@@ -4,6 +4,7 @@ import pstats
 import sys
 import pandas as pd
 from IPython.display import HTML
+from pytools.prog.decorators import deprecated
 
 DEFAULT_OUTPUT = sys.stdout
 
@@ -113,7 +114,7 @@ def _max_value(series, type_list=None):
     else:
         return None
 
-
+@deprecated("The new location is pytool.dataframe.analysis")
 def summarize(dataset=None, size_head=80, output = DEFAULT_OUTPUT, html_formatter=_html_formatter):
     """
     This function returns a summary of information about the DataFrame.
