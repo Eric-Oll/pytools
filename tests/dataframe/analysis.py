@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 from io import StringIO
 
-from pytools.console.data_analysis import summarize, _type_list
+from pytools.dataframe.analysis import summarize, _type_list
 from IPython.display import HTML
 
 
