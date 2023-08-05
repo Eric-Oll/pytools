@@ -4,6 +4,8 @@
 #
 #
 from IPython.display import HTML, display_html
+from collections import defaultdict
+from itertools import cycle
 
 OK = 'OK'
 KO = 'KO'
@@ -69,3 +71,77 @@ def div(message, classe="info"):
 
 def p(message, classe="info"):
     display_html(HTML(f"<p class='{classe}'>{message}</p>"))
+    
+class HTMLTable:
+    """
+    Structure pour l'affiche de table en HTML
+    """
+    class HTMLColumns:
+        def __init__(self):
+            self.cols = list()
+            self.classes = list()
+
+        @property
+        def n_cols(self):
+            return len(self.cols)
+
+        def add_column(self, column="", classe=""):
+            self.cols.append(column)
+            self.classes.append(classe)
+
+        def __str__(self):
+            return "".join([f"<td class='{c}'>{v}</td>" for c, v in zip(cycle(self.classes), self.cols)])
+        
+        def __repr__(self):
+            return "<HTMLColumns: "+",".join([f"" in zip(self.cols, self.classes)])
+
+    def __init__(self, headers=None, header_classe="", table_classe=""):
+        self.classe = table_classe
+        self.add_headers(headers, header_classe)
+        self.rows = defaultdict(HTMLTable.HTMLColumns)
+        self.row_classes = list()
+
+    @property
+    def n_rows(self):
+        return len(self.rows)
+
+    def add_headers(self, header_list=None, classe=""):
+        if header_list is None:
+            self.headers = None
+        elif isinstance(header_list, str):
+            self.headers = HTMLTable.HTMLColumns()
+            self.headers.add_column(header_list, classe)
+        elif '__iter__' in dir(header_list):
+            self.headers = HTMLTable.HTMLColumns()
+            for header in header_list:
+                self.headers.add_column(header, classe)
+    def add_rows(self, columns=None, classe="", column_classe=""):
+        """
+        Ajoute une ligne au tableau
+        :param columns: liste des colonnes 
+        :param classe: Class HTML de la ligne
+        :return: index de la ligne ajouté
+        """
+        new_row = self.rows[self.n_rows]
+        self.row_classes.append(classe)
+
+        if isinstance(columns, str):
+            new_row.add_column(columns, column_classe)
+        elif '__iter__' in dir(columns):
+            _row = ""
+            idx_row = self.n_rows
+            for column in columns:
+                self.rows[idx_row].add_column(column, column_classe)
+
+        return new_row
+
+    def print(self):
+        """
+        Génère le HTML et l'affiche
+        """
+        _table = f"<table class='{self.classe}'>" \
+                 + "<tr>"+ "".join([f"<th class='{c}'>{v}</th>" for v, c in zip(self.headers.cols, cycle(self.headers.classes))]) + "</tr>"\
+                 + "".join(f"<tr class='{r_classe}'>{str(row)}</tr>" for row, r_classe in zip(self.rows.values(), cycle(self.row_classes)))\
+                 + "</table>"
+        #print(_table)
+        display_html(HTML(_table))
