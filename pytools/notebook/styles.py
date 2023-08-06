@@ -115,7 +115,7 @@ class HTMLTable:
             self.headers = HTMLTable.HTMLColumns()
             for header in header_list:
                 self.headers.add_column(header, classe)
-    def add_rows(self, columns=None, classe="", column_classe=""):
+    def add_row(self, columns=None, classe="", column_classe=""):
         """
         Ajoute une ligne au tableau
         :param columns: liste des colonnes 
